@@ -6,6 +6,13 @@
       "size": "2.27",
       "weight": "2kg",
       "stock": 1520
+    },
+    "qrto.org/unready": {
+      "name": "Deneme 01",
+      "price": 420,
+      "size": "1.45",
+      "weight": "1",
+      "stock": 0
     }
   }
 }
