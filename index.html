@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GitHub Stok Sistem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: white; font-family: sans-serif; }
+        .btn-active:active { transform: scale(0.95); }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #eab308; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <div class="bg-gray-800 p-3 shadow-md z-10 flex justify-between items-center border-b border-gray-700">
+        <div class="font-bold text-yellow-500 text-sm flex items-center gap-2">
+            <i class="fa-brands fa-github"></i> BULUT STOK
+        </div>
+        
+        <div id="status-indicator" class="text-xs text-gray-400">Hazır</div>
+
+        <div class="flex items-center bg-black/50 rounded px-2 py-1 gap-2">
+            <span id="market-rate-view" class="font-bold text-green-400 text-sm">%0</span>
+            <button onclick="changeRate()" class="bg-gray-700 text-xs px-2 py-1 rounded">AYAR</button>
+        </div>
+    </div>
+
+    <div id="scan-page" class="flex-1 flex flex-col items-center justify-center p-4">
+        <div id="reader" class="w-full max-w-sm bg-black border-2 border-gray-600 rounded-lg h-64 shadow-2xl overflow-hidden mb-4"></div>
+        
+        <p class="text-gray-500 text-sm mb-6">QR Kodu göster veya NFC okut</p>
+        
+        <button onclick="startNFC()" class="w-full max-w-sm bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg btn-active flex items-center justify-center gap-2">
+            <i class="fa-solid fa-wifi"></i> NFC TARA
+        </button>
+    </div>
+
+    <div id="product-page" class="hidden flex-1 flex flex-col bg-gray-900 p-4 h-full overflow-y-auto">
+        <button onclick="goHome()" class="text-gray-400 mb-4 flex items-center gap-2 text-sm"><i class="fa-solid fa-arrow-left"></i> Listeye Dön</button>
+        
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-xl border-l-4 border-yellow-500 relative">
+            <span id="p-id" class="absolute top-2 right-2 text-xs text-gray-500 font-mono bg-black px-2 rounded">ID: -</span>
+            <h1 id="p-name" class="text-2xl font-bold text-white mb-2">Ürün Yükleniyor...</h1>
+            
+            <div class="flex justify-between items-center bg-black/30 p-3 rounded-lg mb-4">
+                <div>
+                    <div class="text-xs text-gray-400">Satış Fiyatı</div>
+                    <div id="p-price" class="text-3xl font-bold text-green-400">0 TL</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-gray-400">Stok</div>
+                    <div id="p-stock" class="text-4xl font-bold text-yellow-500">0</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-sm text-gray-400">
+                <div class="bg-gray-700/50 p-2 rounded">Boy: <span id="p-size" class="text-white">-</span></div>
+                <div class="bg-gray-700/50 p-2 rounded">Kilo: <span id="p-weight" class="text-white">-</span></div>
+            </div>
+        </div>
+
+        <div class="mt-auto grid grid-cols-2 gap-4 pb-6 pt-4">
+            <button onclick="updateStock(-1)" class="bg-red-600 py-6 rounded-xl font-bold text-2xl shadow-lg btn-active">
+                <i class="fa-solid fa-minus"></i>
+            </button>
+            <button onclick="updateStock(1)" class="bg-green-600 py-6 rounded-xl font-bold text-2xl shadow-lg btn-active">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+            
+            <button onclick="updateStock(-5)" class="col-span-1 bg-red-900/50 py-3 rounded-lg text-red-200 font-bold">-5</button>
+            <button onclick="updateStock(5)" class="col-span-1 bg-green-900/50 py-3 rounded-lg text-green-200 font-bold">+5</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // AYARLAR (BURAYI KENDİNE GÖRE DOLDUR)
+        // ==========================================
+        const GITHUB_CONFIG = {
+            USERNAME: "KULLANICI_ADIN",    // Örn: fthlabz
+            REPO: "REPO_ADIN",             // Örn: stok-takip
+            FILENAME: "stok.json",         // Dosya adı
+            TOKEN: "ghp_XXXXXXXXXXXXXXXX"  // GitHub'dan aldığın Token (Buraya yapıştır)
+        };
+        // ==========================================
+
+        let db = { settings: { rate: 0 }, products: {} };
+        let currentSha = null; // Dosyanın versiyon kodu (GitHub için gerekli)
+        let currentId = null;
+        let scanner = null;
+
+        // Başlangıçta veriyi çek
+        window.onload = async () => {
+            await fetchFromGitHub();
+            startScanner();
+            updateMarketUI();
+        };
+
+        // --- GITHUB İLE KONUŞMA (OKUMA/YAZMA) ---
+        async function fetchFromGitHub() {
+            setStatus("Veri çekiliyor...", true);
+            const url = `https://api.github.com/repos/${GITHUB_CONFIG.USERNAME}/${GITHUB_CONFIG.REPO}/contents/${GITHUB_CONFIG.FILENAME}`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { 
+                        'Authorization': `token ${GITHUB_CONFIG.TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error("GitHub Bağlantı Hatası");
+                
+                const data = await response.json();
+                currentSha = data.sha; // Dosyanın parmak izini al (güncellerken lazım)
+                
+                // Base64 şifreli gelen içeriği çöz
+                const content = atob(data.content);
+                // Türkçe karakter sorununu çözmek için
+                const decodedContent = decodeURIComponent(escape(content));
+                
+                db = JSON.parse(decodedContent);
+                setStatus("Senkronize", false);
+                updateMarketUI();
+            } catch (error) {
+                console.error(error);
+                setStatus("Hata: Veri Alınamadı!", false);
+            }
+        }
+
+        async function saveToGitHub() {
+            setStatus("Kaydediliyor...", true);
+            const url = `https://api.github.com/repos/${GITHUB_CONFIG.USERNAME}/${GITHUB_CONFIG.REPO}/contents/${GITHUB_CONFIG.FILENAME}`;
+            
+            // İçeriği Base64'e çevir (Türkçe karakter destekli)
+            const contentString = JSON.stringify(db, null, 2);
+            const encodedContent = btoa(unescape(encodeURIComponent(contentString)));
+
+            const body = {
+                message: "Stok Güncelleme: " + new Date().toLocaleTimeString(),
+                content: encodedContent,
+                sha: currentSha // Hangi versiyonun üzerine yazdığımızı belirtiyoruz
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `token ${GITHUB_CONFIG.TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentSha = data.content.sha; // Yeni parmak izini kaydet
+                    setStatus("Kaydedildi ✅", false);
+                } else {
+                    throw new Error("Kayıt Başarısız");
+                }
+            } catch (error) {
+                alert("Kayıt Hatası: " + error);
+                setStatus("Hata!", false);
+            }
+        }
+
+        function setStatus(msg, isLoading) {
+            const el = document.getElementById('status-indicator');
+            el.innerHTML = isLoading ? `<div class="loader inline-block align-middle mr-1"></div> ${msg}` : msg;
+            el.className = isLoading ? "text-xs text-yellow-400" : "text-xs text-gray-400";
+        }
+
+        // --- İŞ MANTIĞI ---
+        function findProduct(code) {
+            currentId = code;
+            if (!db.products[code]) {
+                if(confirm("Yeni ürün ekle?")) createProduct(code);
+                return;
+            }
+            showProduct();
+        }
+
+        async function createProduct(code) {
+            const name = prompt("Ürün Adı:");
+            const price = prompt("Taban Fiyat:");
+            if (!name) return;
+
+            db.products[code] = {
+                name: name,
+                price: parseFloat(price) || 0,
+                size: prompt("Boy:") || "-",
+                weight: prompt("Kilo:") || "-",
+                stock: 0
+            };
+            await saveToGitHub(); // Hemen kaydet
+            showProduct();
+        }
+
+        function showProduct() {
+            if(!currentId) return;
+            const p = db.products[currentId];
+            
+            document.getElementById('scan-page').classList.add('hidden');
+            document.getElementById('product-page').classList.remove('hidden');
+            if(scanner) scanner.stop();
+
+            document.getElementById('p-id').innerText = currentId;
+            document.getElementById('p-name').innerText = p.name;
+            document.getElementById('p-size').innerText = p.size;
+            document.getElementById('p-weight').innerText = p.weight;
+            
+            renderPrice();
+        }
+
+        function renderPrice() {
+            const p = db.products[currentId];
+            const rate = db.settings.rate;
+            const finalPrice = p.price + (p.price * rate / 100);
+            
+            document.getElementById('p-price').innerText = finalPrice.toFixed(2) + " TL";
+            document.getElementById('p-stock').innerText = p.stock;
+        }
+
+        async function updateStock(amount) {
+            db.products[currentId].stock += amount;
+            renderPrice(); // Ekranı hemen güncelle (Hız hissi için)
+            
+            // Arka planda kaydet (Kullanıcıyı bekletme)
+            await saveToGitHub();
+        }
+
+        async function changeRate() {
+            const newRate = prompt("Yeni Piyasa Yüzdesi (%):", db.settings.rate);
+            if (newRate !== null) {
+                db.settings.rate = parseFloat(newRate);
+                updateMarketUI();
+                await saveToGitHub(); // Ayarı kaydet
+            }
+        }
+
+        function updateMarketUI() {
+            const r = db.settings.rate;
+            const el = document.getElementById('market-rate-view');
+            el.innerText = (r > 0 ? "+" : "") + r + "%";
+            el.className = r > 0 ? "font-bold text-green-400 text-sm" : (r < 0 ? "font-bold text-red-400 text-sm" : "font-bold text-gray-400 text-sm");
+        }
+
+        function goHome() {
+            document.getElementById('product-page').classList.add('hidden');
+            document.getElementById('scan-page').classList.remove('hidden');
+            startScanner();
+            fetchFromGitHub(); // Ana sayfaya dönünce veriyi tazele (başka biri değiştirdiyse gör)
+        }
+
+        function startScanner() {
+            scanner = new Html5Qrcode("reader");
+            scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, findProduct);
+        }
+        
+        async function startNFC() {
+            if ('NDEFReader' in window) {
+                try {
+                    const ndef = new NDEFReader();
+                    await ndef.scan();
+                    alert("NFC Okut!");
+                    ndef.onreading = event => {
+                        const decoder = new TextDecoder();
+                        for (const record of event.message.records) {
+                            findProduct(decoder.decode(record.data));
+                        }
+                    };
+                } catch (error) { alert("NFC Hatası: " + error); }
+            } else { alert("NFC desteklenmiyor."); }
+        }
+    </script>
+</body>
+</html>
