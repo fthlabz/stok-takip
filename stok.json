@@ -2,14 +2,14 @@
   "products": {
     "https://qrto.org/en-unready": {
       "name": "Deneme",
-      "price": 346.5,
+      "price": 381.15,
       "size": "2.27",
       "weight": "2kg",
       "stock": 1520
     },
     "qrto.org/unready": {
       "name": "Deneme 01",
-      "price": 441,
+      "price": 485.1,
       "size": "1.45",
       "weight": "1",
       "stock": 550
