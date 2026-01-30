@@ -1,10 +1,10 @@
 {
   "products": {
     "https://qrto.org/en-unready": {
-      "name": "Deneme",
+      "name": "Zebra",
       "price": 381.15,
-      "size": "2.27",
-      "weight": "2kg",
+      "size": "2.27 cm",
+      "weight": "2 kg",
       "stock": 1520
     },
     "qrto.org/unready": {
