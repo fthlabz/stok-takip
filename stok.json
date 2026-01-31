@@ -18,6 +18,14 @@
       "size": "0 cm",
       "stock": 100,
       "offcuts": []
+    },
+    "URUN-214462-65183": {
+      "name": "Demo",
+      "price": 320,
+      "length": 270,
+      "size": "270 cm",
+      "stock": 0,
+      "offcuts": []
     }
   }
 }
