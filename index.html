@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stok Master v7.0 (Full)</title>
+    <title>Stok Master v7.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -22,7 +22,7 @@
     <header class="bg-gray-800 p-3 shadow-md border-b border-gray-700 flex justify-between items-center z-20 shrink-0 gap-2">
         <div class="flex items-center gap-2 overflow-hidden">
             <i class="fa-solid fa-cube text-yellow-500"></i>
-            <span class="font-bold text-gray-200 text-sm tracking-wide truncate">FTHLABZ v7</span>
+            <span class="font-bold text-gray-200 text-sm tracking-wide truncate">FTHLABZ v7.1</span>
         </div>
         
         <div class="flex gap-2">
@@ -102,14 +102,17 @@
             </div>
         </div>
 
-        <div class="bg-gray-800 p-4 rounded-xl border border-gray-600 shadow-lg mb-4 relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-2 opacity-10 pointer-events-none"><i class="fa-solid fa-scissors text-6xl text-red-500"></i></div>
-            <div class="text-xs text-gray-400 font-bold uppercase mb-2 relative z-10"><i class="fa-solid fa-scissors"></i> Parça Kes / Ayır</div>
-            <div class="flex gap-2 relative z-10">
-                <input type="number" id="cut-input" placeholder="Kesilen (cm)" class="w-full bg-black text-white py-3 px-4 rounded-lg border border-gray-600 focus:border-red-500 outline-none font-bold">
-                <button onclick="processCut()" class="bg-red-600 text-white px-4 rounded-lg font-bold shadow-lg border-b-4 border-red-800 active:scale-95 whitespace-nowrap">KES & AYIR</button>
+        <div class="bg-gray-800 p-4 rounded-xl border border-gray-600 shadow-lg mb-4">
+            <div class="text-xs text-gray-400 font-bold uppercase mb-2">
+                <i class="fa-solid fa-scissors"></i> Parça Kes / Ayır
             </div>
-            <p class="text-[10px] text-gray-500 mt-2 relative z-10">*Ana stoktan 1 düşer, kalan parçaya eklenir.</p>
+            <div class="flex gap-2">
+                <input type="number" id="cut-input" placeholder="Kesilen (cm)" class="w-full bg-black text-white py-3 px-4 rounded-lg border border-gray-600 focus:border-red-500 outline-none font-bold text-lg" style="z-index: 50;">
+                <button onclick="processCut()" class="bg-red-600 text-white px-4 rounded-lg font-bold shadow-lg border-b-4 border-red-800 active:scale-95 whitespace-nowrap" style="z-index: 50;">
+                    KES & AYIR
+                </button>
+            </div>
+            <p class="text-[10px] text-gray-500 mt-2">*Ana stoktan 1 düşer, kalan parçaya eklenir.</p>
         </div>
 
         <div id="offcut-container" class="bg-gray-800 p-4 rounded-xl border border-gray-600 shadow-lg hidden mb-4">
