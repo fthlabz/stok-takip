@@ -30,6 +30,14 @@
         200,
         70
       ]
+    },
+    "https://fthlabz.github.io/aluminyum-stok/?id=URUN-379933-22387": {
+      "name": "Yeni qr ürün",
+      "price": 320,
+      "length": 270,
+      "size": "270 cm",
+      "stock": 0,
+      "offcuts": []
     }
   }
 }
