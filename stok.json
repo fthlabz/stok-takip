@@ -24,8 +24,10 @@
       "price": 320,
       "length": 270,
       "size": "270 cm",
-      "stock": 100,
-      "offcuts": []
+      "stock": 99,
+      "offcuts": [
+        150
+      ]
     }
   }
 }
