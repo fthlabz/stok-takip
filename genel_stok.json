@@ -6,6 +6,13 @@
       "stock": 100,
       "note": "Skt:20.02.2026",
       "category": "GENEL"
+    },
+    "URUN-214462-49400": {
+      "name": "Demov1",
+      "price": 4900,
+      "stock": 0,
+      "note": "Açıklama",
+      "category": "GENEL"
     }
   }
 }
