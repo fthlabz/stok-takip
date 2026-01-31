@@ -5,9 +5,10 @@
       "price": 150,
       "length": 270,
       "size": "270 cm",
-      "stock": 99,
+      "stock": 98,
       "offcuts": [
-        200
+        200,
+        150
       ]
     },
     "URUN-379933-61432": {
