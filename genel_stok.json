@@ -10,7 +10,7 @@
     "URUN-214462-49400": {
       "name": "Demov1",
       "price": 4900,
-      "stock": 0,
+      "stock": 100,
       "note": "Açıklama",
       "category": "GENEL"
     }
