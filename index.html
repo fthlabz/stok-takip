@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stok Master v7.1</title>
+    <title>Stok Master v8.0 (Final Fix)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -22,7 +22,7 @@
     <header class="bg-gray-800 p-3 shadow-md border-b border-gray-700 flex justify-between items-center z-20 shrink-0 gap-2">
         <div class="flex items-center gap-2 overflow-hidden">
             <i class="fa-solid fa-cube text-yellow-500"></i>
-            <span class="font-bold text-gray-200 text-sm tracking-wide truncate">FTHLABZ v7.1</span>
+            <span class="font-bold text-gray-200 text-sm tracking-wide truncate">FTHLABZ v8.0</span>
         </div>
         
         <div class="flex gap-2">
@@ -98,7 +98,7 @@
             </div>
             <div class="mt-3 text-right">
                 <span class="text-[10px] text-gray-400 uppercase mr-2">MEVCUT BOY:</span>
-                <span id="live-length" class="text-2xl font-bold text-blue-400">0 cm</span>
+                <span id="live-length" class="text-2xl font-bold text-blue-400">0</span>
             </div>
         </div>
 
@@ -107,7 +107,7 @@
                 <i class="fa-solid fa-scissors"></i> Parça Kes / Ayır
             </div>
             <div class="flex gap-2">
-                <input type="number" id="cut-input" placeholder="Kesilen (cm)" class="w-full bg-black text-white py-3 px-4 rounded-lg border border-gray-600 focus:border-red-500 outline-none font-bold text-lg" style="z-index: 50;">
+                <input type="number" step="any" id="cut-input" placeholder="Kesilen (CM yazın)" class="w-full bg-black text-white py-3 px-4 rounded-lg border border-gray-600 focus:border-red-500 outline-none font-bold text-lg" style="z-index: 50;">
                 <button onclick="processCut()" class="bg-red-600 text-white px-4 rounded-lg font-bold shadow-lg border-b-4 border-red-800 active:scale-95 whitespace-nowrap" style="z-index: 50;">
                     KES & AYIR
                 </button>
@@ -195,11 +195,15 @@
             const p = db.products[currentId];
             document.getElementById('p-id').innerText = currentId;
             document.getElementById('p-name').innerText = p.name;
-            document.getElementById('p-price').innerText = p.price.toFixed(2) + " TL";
+            document.getElementById('p-price').innerText = (p.price || 0).toFixed(2) + " TL";
             document.getElementById('p-stock').innerText = p.stock;
             
-            let len = p.length || parseFloat(p.size) || 0;
-            document.getElementById('live-length').innerHTML = len + " <span class='text-sm'>cm</span>";
+            // Boy Göstergesi (Matematik Hatası Fix)
+            let len = parseFloat(p.length || p.size) || 0;
+            // .toFixed(2) ile virgülden sonra max 2 hane göster (1.50 gibi)
+            // parseFloat ile gereksiz sıfırları temizle (1.50 -> 1.5)
+            let displayLen = parseFloat(len.toFixed(2)); 
+            document.getElementById('live-length').innerHTML = displayLen + " <span class='text-sm text-gray-500'>cm</span>";
 
             // PARÇA DEPOSU
             const container = document.getElementById('offcut-container');
@@ -210,8 +214,10 @@
                 p.offcuts.forEach((cm, idx) => {
                     const row = document.createElement('div');
                     row.className = "flex justify-between items-center bg-black/40 p-3 rounded border border-gray-600";
+                    // Parça boyunu da düzgün formatla
+                    let niceCm = parseFloat(parseFloat(cm).toFixed(2));
                     row.innerHTML = `
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-puzzle-piece text-gray-500"></i><span class="text-blue-300 font-bold text-lg">${cm} cm</span></div>
+                        <div class="flex items-center gap-2"><i class="fa-solid fa-puzzle-piece text-gray-500"></i><span class="text-blue-300 font-bold text-lg">${niceCm} cm</span></div>
                         <button onclick="sellOffcut(${idx})" class="bg-red-900/80 text-red-200 text-xs px-3 py-2 rounded font-bold border border-red-700 hover:bg-red-800 active:scale-95">SİL</button>
                     `;
                     list.appendChild(row);
@@ -219,19 +225,31 @@
             } else { container.classList.add('hidden'); }
         }
 
-        // --- ✂️ KESİM MANTIĞI ---
+        // --- ✂️ KESİM MANTIĞI (FIXED) ---
         async function processCut() {
             const p = db.products[currentId];
             const cutVal = parseFloat(document.getElementById('cut-input').value);
+            
+            // Veritabanındaki boyu al
             let len = parseFloat(p.length || p.size) || 0;
 
-            if (!cutVal) return alert("Miktar gir!");
-            if (len === 0) { len = parseFloat(prompt("Tam boy kaç cm?", "600")); if(!len) return; p.length = len; }
-            if (cutVal >= len) return alert("Boydan büyük kesilemez!");
+            if (!cutVal) return alert("Kesilecek miktarı girmedin!");
+            
+            // Eğer boy hiç yoksa sor
+            if (len === 0) { 
+                let manual = prompt("Bu ürünün TAM BOYU kaç CM? (Örn: 270)", "600"); 
+                if(!manual) return; 
+                len = parseFloat(manual);
+                p.length = len; // Kaydet
+            }
 
-            const remaining = len - cutVal;
+            if (cutVal >= len) return alert("HATA: Boydan daha fazlasını kesemezsin!");
+
+            // Matematik Hatası Önleyici (1.50000002 -> 1.50)
+            const remaining = parseFloat((len - cutVal).toFixed(2));
+
             if (p.stock > 0) {
-                if(confirm(`✂️ KESİM ONAYI\nAna stoktan 1 düşülecek.\nKalan ${remaining} cm 'Parça Deposu'na eklenecek.\nOnay?`)) {
+                if(confirm(`✂️ KESİM ONAYI\n\nAna stoktan 1 düşülecek.\nKalan ${remaining} cm 'Parça Deposu'na eklenecek.\n\nOnaylıyor musun?`)) {
                     p.stock--; 
                     if (!p.offcuts) p.offcuts = [];
                     p.offcuts.push(remaining); 
@@ -242,9 +260,52 @@
             } else { alert("Ana stokta kesecek ürün kalmadı!"); }
         }
 
+        // --- DÜZENLEME (GERİ GELDİ) ---
+        async function editProduct(id) {
+            const p = db.products[id];
+            
+            const n = prompt("Ürün Adı:", p.name);
+            if (!n) return;
+            
+            const pr = prompt("Fiyat (TL):", p.price);
+            const l = prompt("Tam Boy (CM cinsinden):", p.length || p.size || 0);
+
+            p.name = n;
+            p.price = parseFloat(pr) || 0;
+            p.length = parseFloat(l) || 0;
+            p.size = p.length + " cm"; // Görünen metni de güncelle
+
+            await saveToCloud();
+            // Eğer o an o ürün açıksa sayfayı yenile, yoksa listeyi yenile
+            if(currentId === id) showProductPage();
+            else renderList(document.getElementById('list-search').value || "");
+        }
+
+        // --- YENİ ÜRÜN (GELİŞMİŞ) ---
+        async function createProduct(code) {
+            // Zincirleme sorular (Boş geçilemez)
+            let name = prompt("Yeni Ürün Adı:");
+            if(!name) return;
+
+            let price = prompt("Birim Fiyatı (TL):", "0");
+            let length = prompt("Ürün Boyu (CM cinsinden, Örn: 600):", "600");
+            
+            db.products[code] = { 
+                name: name, 
+                price: parseFloat(price) || 0,
+                length: parseFloat(length) || 0,
+                size: length + " cm",
+                stock: 0, 
+                offcuts: [] 
+            };
+            
+            await saveToCloud();
+            showProductPage();
+        }
+
         // --- STOK & PARÇA ---
         async function sellOffcut(index) {
-            if(confirm("Siliniyor?")) {
+            if(confirm("Bu parçayı siliyor musun?")) {
                 db.products[currentId].offcuts.splice(index, 1);
                 showStatus("Silindi 🗑️"); await saveToCloud(); showProductPage();
             }
@@ -306,10 +367,24 @@
                 const p = db.products[k];
                 if (p.name.toLowerCase().includes(filter.toLowerCase())) {
                     const d = document.createElement('div');
-                    d.className = "bg-gray-800 p-4 rounded-xl border border-gray-700 flex justify-between";
+                    d.className = "bg-gray-800 p-4 rounded-xl border border-gray-700 flex justify-between items-center";
                     const off = (p.offcuts && p.offcuts.length > 0) ? `<span class='text-blue-400 text-xs ml-2'>+${p.offcuts.length} Parça</span>` : "";
-                    d.innerHTML = `<div><div class='font-bold text-white'>${p.name} ${off}</div><div class='text-xs text-gray-500'>${k}</div></div><div class='text-right'><div class='text-yellow-500 font-bold'>${p.stock}</div><div class='text-green-400 text-xs'>${p.price} TL</div></div>`;
-                    d.onclick = () => { currentId = k; showProductPage(); };
+                    
+                    d.innerHTML = `
+                        <div onclick="findProduct('${k}')" class="flex-1 cursor-pointer">
+                            <div class='font-bold text-white'>${p.name} ${off}</div>
+                            <div class='text-xs text-gray-500'>${k}</div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class='text-right mr-2'>
+                                <div class='text-yellow-500 font-bold'>${p.stock}</div>
+                                <div class='text-green-400 text-xs'>${p.price} TL</div>
+                            </div>
+                            <button onclick="editProduct('${k}')" class="bg-gray-700 p-2 rounded text-blue-300 hover:bg-gray-600">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </div>
+                    `;
                     c.appendChild(d);
                 }
             });
@@ -317,9 +392,8 @@
         function findProduct(code) {
             currentId = code;
             if (!db.products[code]) {
-                if(confirm("Yeni Ürün Ekle?")) {
-                    const n = prompt("Adı:");
-                    if(n) { db.products[code] = { name: n, stock: 0, price: 0, offcuts: [] }; saveToCloud(); showProductPage(); }
+                if(confirm("Yeni Ürün Ekle?\nID: " + code)) {
+                    createProduct(code);
                 } return;
             } showProductPage();
         }
