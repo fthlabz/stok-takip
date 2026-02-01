@@ -2,21 +2,21 @@
   "products": {
     "URUN-379933-72059": {
       "name": "Kedi maması",
-      "price": 320,
+      "price": 352,
       "stock": 100,
       "note": "Skt:20.02.2026",
       "category": "GENEL"
     },
     "URUN-214462-49400": {
       "name": "Demov1",
-      "price": 4900,
+      "price": 5390,
       "stock": 100,
       "note": "Açıklama",
       "category": "GENEL"
     },
     "URUN-214462-65183": {
       "name": "Kdjjjd",
-      "price": 444,
+      "price": 488.4,
       "stock": 100,
       "note": "Standart",
       "category": "GENEL"
