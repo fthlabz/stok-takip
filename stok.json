@@ -24,7 +24,7 @@
       "offcuts": [],
       "name": "Kanvas profil ",
       "price": 250,
-      "stock": 100,
+      "stock": 95,
       "size": 270,
       "unit": "CM",
       "extraLabel": "Deneme",
@@ -33,8 +33,14 @@
   },
   "dailyStats": {
     "date": "9.02.2026",
-    "ciro": 5750,
+    "ciro": 7000,
     "log": [
+      {
+        "name": "Kanvas profil ",
+        "qty": 5,
+        "total": 1250,
+        "staff": "Fth"
+      },
       {
         "name": "Saray halı",
         "qty": 1,
