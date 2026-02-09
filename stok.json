@@ -1,1 +1,12 @@
-{ "products": {} }
+{
+  "products": {
+    "URUN-214462-65183": {
+      "name": "Saray halı",
+      "price": 4.75,
+      "length": 600,
+      "size": "600 cm",
+      "stock": 0,
+      "offcuts": []
+    }
+  }
+}
