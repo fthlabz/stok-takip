@@ -7,7 +7,8 @@
       "stock": 100,
       "unit": "M²",
       "extraLabel": "Skt",
-      "extraValue": "05.11.2026"
+      "extraValue": "05.11.2026",
+      "size": 0
     }
   }
 }
