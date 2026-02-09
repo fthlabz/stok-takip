@@ -20,9 +20,11 @@
       "name": "Çamaşır makünası",
       "price": 5650,
       "unit": "m2",
-      "stock": 45,
+      "stock": 44,
       "length": 600,
-      "offcuts": []
+      "offcuts": [
+        4
+      ]
     }
   }
 }
