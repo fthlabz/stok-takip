@@ -12,11 +12,12 @@
     },
     "URUN-214462-49400": {
       "offcuts": [
-        200
+        200,
+        2
       ],
       "name": "U profil çubuk",
       "price": 170,
-      "stock": 99,
+      "stock": 98,
       "size": 2.7,
       "unit": "M",
       "extraLabel": "Cinsi",
