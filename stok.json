@@ -14,7 +14,7 @@
       "offcuts": [],
       "name": "Enes zeytin gold",
       "price": 4750,
-      "stock": 45,
+      "stock": 40,
       "size": 18,
       "unit": "KG",
       "extraLabel": "Skt",
@@ -23,8 +23,14 @@
   },
   "dailyStats": {
     "date": "9.02.2026",
-    "ciro": 23750,
+    "ciro": 47500,
     "log": [
+      {
+        "name": "Enes zeytin gold",
+        "qty": 5,
+        "total": 23750,
+        "staff": "Fth"
+      },
       {
         "name": "Enes zeytin gold",
         "qty": 5,
