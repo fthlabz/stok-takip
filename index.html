@@ -3,22 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stok Master v9.8 (Pro)</title>
+    <title>Stok Master v9.9 (Premium UI)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; touch-action: manipulation; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Inter', sans-serif; touch-action: manipulation; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
         .hidden { display: none !important; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .modal-enter { animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
         .critical-stock { border: 2px solid #ef4444 !important; animation: pulseRed 2s infinite; }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        /* Form Inputs Style */
-        .form-input { @apply w-full bg-black border border-gray-600 rounded-lg p-3 text-white focus:border-green-500 outline-none transition-colors; }
-        .form-label { @apply text-xs text-gray-400 uppercase font-bold mb-1 block; }
+
+        /* --- PREMIUM FORM STİLİ --- */
+        .input-group { margin-bottom: 1rem; }
+        .input-label { display: block; font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.05em; }
+        .modern-input { 
+            width: 100%; 
+            background-color: #1e293b; /* Koyu Gri Arkaplan */
+            border: 1px solid #334155; 
+            color: white; 
+            padding: 0.8rem 1rem; 
+            border-radius: 0.75rem; 
+            font-size: 1rem; 
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .modern-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        .modern-input::placeholder { color: #475569; }
+        
+        .modern-select {
+            appearance: none; 
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
     </style>
 </head>
 <body>
@@ -33,25 +57,29 @@
     </div>
 
     <div id="create-modal" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-gray-800 border border-gray-600 w-full max-w-md rounded-2xl p-6 shadow-2xl modal-enter relative overflow-y-auto max-h-[90vh]">
-            <h3 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-4">Ürün Düzenle / Stok Ekle</h3>
+        <div class="bg-gray-800 border border-gray-600 w-full max-w-md rounded-2xl p-6 shadow-2xl modal-enter relative overflow-y-auto max-h-[95vh]">
             
-            <div class="space-y-4">
-                <div>
-                    <label class="form-label">ÜRÜN ADI</label>
-                    <input type="text" id="new-name" class="form-input" placeholder="Örn: Çamaşır Makinesi">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+                <h3 class="text-xl font-bold text-white">Ürün Yönetimi</h3>
+                <button onclick="closeCreateModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark fa-lg"></i></button>
+            </div>
+            
+            <div class="space-y-1">
+                <div class="input-group">
+                    <label class="input-label">Ürün Adı</label>
+                    <input type="text" id="new-name" class="modern-input" placeholder="Örn: Çamaşır Makinesi">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="form-label">FİYAT (TL)</label>
-                        <input type="number" id="new-price" class="form-input" placeholder="0">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="input-group">
+                        <label class="input-label">Fiyat (TL)</label>
+                        <input type="number" id="new-price" class="modern-input" placeholder="0.00">
                     </div>
-                    <div>
-                        <label class="form-label">BİRİM</label>
-                        <select id="new-unit" class="form-input h-[50px] bg-black">
-                            <option value="ADT">ADT</option>
-                            <option value="M²">M²</option>
+                    <div class="input-group">
+                        <label class="input-label">Birim</label>
+                        <select id="new-unit" class="modern-input modern-select">
+                            <option value="ADT">ADET</option>
+                            <option value="M²">M² (Metrekare)</option>
                             <option value="M">METRE</option>
                             <option value="CM">CM</option>
                             <option value="KG">KG</option>
@@ -60,23 +88,27 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="form-label">MEVCUT STOK</label>
-                    <input type="number" id="new-stock" class="form-input text-yellow-400 font-bold text-lg" placeholder="0">
-                    <p class="text-[10px] text-gray-500 mt-1">*Stok eklemek için sayıyı arttırın.</p>
+                <div class="input-group">
+                    <label class="input-label">Mevcut Stok</label>
+                    <input type="number" id="new-stock" class="modern-input text-yellow-400 font-bold" placeholder="0">
+                    <p class="text-[10px] text-gray-500 mt-1 ml-1">*Stok eklemek için sayıyı arttırın.</p>
                 </div>
 
-                <div class="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
-                    <label class="form-label text-blue-400"><i class="fa-solid fa-tag"></i> ÖZEL BİLGİ EKLE</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="new-extra-label" class="bg-black border border-gray-600 rounded p-2 text-sm text-white" placeholder="Etiket (Örn: SKT)">
-                        <input type="text" id="new-extra-value" class="bg-black border border-gray-600 rounded p-2 text-sm text-white" placeholder="Değer (Örn: 23.05.2026)">
+                <div class="mt-4 bg-gray-900/60 p-4 rounded-xl border border-gray-700">
+                    <label class="input-label text-blue-400 flex items-center gap-2 mb-3"><i class="fa-solid fa-tags"></i> Özel Etiket (Opsiyonel)</label>
+                    <div class="grid grid-cols-5 gap-3">
+                        <div class="col-span-2">
+                            <input type="text" id="new-extra-label" class="modern-input text-xs" placeholder="Örn: SKT">
+                        </div>
+                        <div class="col-span-3">
+                            <input type="text" id="new-extra-value" class="modern-input text-xs" placeholder="Örn: 20.05.2026">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mt-8">
-                <button onclick="closeCreateModal()" class="bg-gray-600 hover:bg-gray-500 text-white py-3.5 rounded-xl font-bold transition-colors">İPTAL</button>
+                <button onclick="closeCreateModal()" class="bg-gray-700 hover:bg-gray-600 text-white py-3.5 rounded-xl font-bold transition-colors">İPTAL</button>
                 <button onclick="saveProductData()" class="bg-green-600 hover:bg-green-500 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-green-900/20 transition-colors">KAYDET</button>
             </div>
         </div>
@@ -88,7 +120,7 @@
             <div class="flex items-center gap-2 overflow-hidden">
                 <i class="fa-solid fa-cube text-yellow-500"></i>
                 <div class="flex flex-col">
-                    <span class="font-bold text-gray-200 text-xs tracking-wide truncate">FTHLABZ v9.8</span>
+                    <span class="font-bold text-gray-200 text-xs tracking-wide truncate">FTHLABZ v9.9</span>
                     <span class="text-[10px] text-green-400 font-mono" id="header-ciro">Ciro: 0₺</span>
                 </div>
             </div>
@@ -157,10 +189,10 @@
 
         <div id="product-page" class="hidden flex-1 flex flex-col bg-gray-900 p-4 overflow-y-auto pb-32">
             <div class="flex justify-between items-center mb-2">
-                <button onclick="goHome()" class="text-gray-400 flex items-center gap-2 text-sm w-fit p-2"><i class="fa-solid fa-arrow-left"></i> Kapat</button>
+                <button onclick="goHome()" class="text-gray-400 flex items-center gap-2 text-sm w-fit p-2 hover:text-white transition-colors"><i class="fa-solid fa-arrow-left"></i> Kapat</button>
                 <div class="flex gap-2">
-                    <button onclick="openEditModal(true)" class="bg-gray-700 text-white px-3 py-1 rounded-full text-xs font-bold border border-gray-600"><i class="fa-solid fa-pen"></i> DÜZENLE</button>
-                    <button onclick="shareProductWhatsapp()" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold"><i class="fa-brands fa-whatsapp"></i></button>
+                    <button onclick="openCreateModal(true)" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1.5 rounded-full text-xs font-bold border border-gray-600 transition-colors"><i class="fa-solid fa-pen"></i> DÜZENLE</button>
+                    <button onclick="shareProductWhatsapp()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-colors"><i class="fa-brands fa-whatsapp fa-lg"></i></button>
                 </div>
             </div>
             
@@ -168,38 +200,38 @@
                 <div class="flex justify-between items-start mb-2">
                     <div id="p-id-badge" class="text-[10px] text-gray-500 font-mono bg-black/50 px-2 py-1 rounded max-w-[200px] truncate">ID: ...</div>
                 </div>
-                <h1 id="p-name" class="text-2xl font-bold text-white mb-2 leading-tight break-words">...</h1>
-                <div class="grid grid-cols-2 gap-3 mt-2">
-                    <div class="bg-black/30 p-3 rounded-xl border border-gray-700 relative">
-                        <div class="text-[10px] text-gray-400 uppercase">Birim Fiyat</div>
+                <h1 id="p-name" class="text-2xl font-bold text-white mb-4 leading-tight break-words">...</h1>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-900/50 p-3 rounded-xl border border-gray-700">
+                        <div class="text-[10px] text-gray-400 uppercase font-bold mb-1">Birim Fiyat</div>
                         <div id="p-price-disp" class="text-2xl font-bold text-green-400">0₺</div>
                     </div>
-                    <div class="bg-black/30 p-3 rounded-xl border border-gray-700 text-right">
-                        <div class="text-[10px] text-gray-400 uppercase">Stok</div>
+                    <div class="bg-gray-900/50 p-3 rounded-xl border border-gray-700 text-right">
+                        <div class="text-[10px] text-gray-400 uppercase font-bold mb-1">Stok</div>
                         <div id="p-stock" class="text-4xl font-bold text-yellow-500">0</div>
                     </div>
                 </div>
                 
-                <div id="p-extra-info" class="mt-3 bg-blue-900/20 border border-blue-900/50 p-2 rounded flex justify-between items-center hidden">
-                    <span id="p-extra-label" class="text-xs text-blue-300 font-bold uppercase">...</span>
-                    <span id="p-extra-value" class="text-sm text-white font-mono">...</span>
+                <div id="p-extra-info" class="mt-3 bg-blue-900/20 border border-blue-900/30 p-3 rounded-lg flex justify-between items-center hidden">
+                    <span id="p-extra-label" class="text-xs text-blue-300 font-bold uppercase tracking-wider">...</span>
+                    <span id="p-extra-value" class="text-sm text-white font-mono bg-blue-900/40 px-2 py-0.5 rounded">...</span>
                 </div>
 
                 <div class="mt-3 text-right">
-                    <span class="text-[10px] text-gray-400 uppercase mr-2">TANIMLI BİRİM:</span>
-                    <span id="p-unit-disp" class="text-xl font-bold text-blue-400 uppercase">ADT</span>
+                    <span class="text-[10px] text-gray-400 uppercase mr-2 font-bold">TANIMLI BİRİM:</span>
+                    <span id="p-unit-disp" class="text-lg font-bold text-blue-400 uppercase">ADT</span>
                 </div>
             </div>
 
             <div class="bg-gray-800 p-4 rounded-xl border border-gray-600 shadow-lg mb-4">
-                <div class="text-xs text-gray-400 font-bold uppercase mb-2 flex justify-between">
+                <div class="text-xs text-gray-400 font-bold uppercase mb-3 flex justify-between items-center border-b border-gray-700 pb-2">
                     <span><i class="fa-solid fa-scissors"></i> Parça Kes / Ayır</span>
-                    <span class="text-[10px] text-gray-500">*Stoktan 1 düşer</span>
                 </div>
-                <div class="flex gap-2 w-full">
-                    <input type="number" step="any" id="cut-input" placeholder="Kesilen Miktar" class="flex-1 bg-black text-white py-3 px-4 rounded-lg border border-gray-600 focus:border-gray-500 outline-none font-bold text-lg min-w-0">
-                    <button onclick="processCut()" class="bg-gray-600 text-white px-5 rounded-lg font-bold shadow-lg border-b-4 border-gray-700 active:scale-95 whitespace-nowrap shrink-0">KES</button>
+                <div class="flex gap-0 w-full">
+                    <input type="number" step="any" id="cut-input" placeholder="Miktar" class="w-full bg-gray-900 text-white py-3 px-4 rounded-l-lg border border-gray-600 border-r-0 focus:border-gray-500 outline-none font-bold text-lg">
+                    <button onclick="processCut()" class="bg-gray-700 text-white px-6 rounded-r-lg font-bold border border-gray-600 hover:bg-gray-600 active:bg-gray-500 whitespace-nowrap transition-colors">KES</button>
                 </div>
+                <p class="text-[10px] text-gray-500 mt-2 text-right">*Bu işlem stoktan 1 düşer.</p>
             </div>
 
             <div id="offcut-container" class="bg-gray-800 p-4 rounded-xl border border-gray-600 shadow-lg hidden mb-4">
@@ -210,12 +242,12 @@
             </div>
 
             <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
-                <label class="text-gray-400 text-xs uppercase font-bold ml-1">Hızlı Satış:</label>
-                <div class="relative">
-                    <input type="number" id="manual-qty" placeholder="Miktar" class="w-full bg-black text-white text-center text-4xl font-bold py-4 rounded-lg border-2 border-red-900 focus:border-red-500 outline-none mb-4 appearance-none" inputmode="numeric">
+                <label class="text-gray-400 text-xs uppercase font-bold ml-1 mb-2 block">Hızlı Satış:</label>
+                <div class="relative mb-4">
+                    <input type="number" id="manual-qty" placeholder="Satış Miktarı" class="w-full bg-gray-900 text-white text-center text-3xl font-bold py-4 rounded-lg border-2 border-red-900/50 focus:border-red-600 outline-none appearance-none transition-colors" inputmode="numeric">
                 </div>
                 
-                <button onclick="requestTransaction()" class="w-full bg-red-600 hover:bg-red-700 py-5 rounded-xl font-bold text-2xl shadow-lg border-b-4 border-red-800 flex items-center justify-center gap-3">
+                <button onclick="requestTransaction()" class="w-full bg-red-600 hover:bg-red-700 py-4 rounded-xl font-bold text-xl shadow-lg shadow-red-900/40 border-b-4 border-red-800 flex items-center justify-center gap-3 transition-transform active:scale-[0.98]">
                     <i class="fa-solid fa-basket-shopping"></i> SATIŞ YAP
                 </button>
             </div>
@@ -224,8 +256,8 @@
 
         <div id="list-page" class="hidden flex-1 flex flex-col bg-gray-900 p-4 overflow-hidden">
             <div class="flex items-center gap-2 mb-4">
-                <button onclick="goHome()" class="bg-gray-800 p-2 rounded text-gray-400"><i class="fa-solid fa-arrow-left"></i></button>
-                <input type="text" oninput="renderList(this.value)" placeholder="Ürün Ara..." class="w-full bg-black text-white px-4 py-2 rounded-lg border border-gray-700 outline-none focus:border-yellow-500">
+                <button onclick="goHome()" class="bg-gray-800 p-2.5 rounded-lg text-gray-400 border border-gray-700"><i class="fa-solid fa-arrow-left"></i></button>
+                <input type="text" oninput="renderList(this.value)" placeholder="Ürün Ara..." class="w-full bg-gray-900 text-white px-4 py-2.5 rounded-lg border border-gray-700 outline-none focus:border-yellow-500 transition-colors">
             </div>
             <div id="list-container" class="flex-1 overflow-y-auto space-y-3 pb-20"></div>
         </div>
@@ -321,7 +353,6 @@
             if(isCameraRunning) toggleCamera();
             currentId = code;
             if (!db.products[code]) {
-                // MODAL AÇILIYOR
                 openCreateModal(false);
                 return;
             } 
@@ -370,7 +401,7 @@
 
         function closeCreateModal() {
             document.getElementById('create-modal').classList.add('hidden');
-            if(!db.products[currentId]) goHome(); // Eğer ürün yoksa ve iptal edildiyse eve dön
+            if(!db.products[currentId]) goHome(); 
         }
 
         async function saveProductData() {
@@ -383,7 +414,6 @@
 
             if(!name) return alert("Ürün adı giriniz.");
 
-            // Mevcut veriyi koru veya yeni oluştur
             if(!db.products[currentId]) db.products[currentId] = { offcuts: [] };
             
             const p = db.products[currentId];
@@ -456,15 +486,12 @@
             const unit = p.unit || "ADT";
 
             if (!cutVal) return alert("Miktar gir!");
-            
-            // Kullanıcı mantığı: Stoktan 1 düşer, girilen miktar "Parça" olarak ayrılır.
-            // Örneğin 1 top kumaştan (stok: 1), 3 metre kesti (input: 3).
             if(p.stock <= 0) return alert("Stok yok!");
 
             if(confirm(`✂️ KESİM ONAYI\n\nAna stoktan 1 ADET düşülecek.\nParça Deposuna: ${cutVal} ${unit} eklenecek.`)) {
                 p.stock--;
                 if(!p.offcuts) p.offcuts = [];
-                p.offcuts.push(cutVal); // Direkt girilen değeri parça olarak ekle
+                p.offcuts.push(cutVal); 
                 
                 showStatus("Kesildi & Ayrıldı");
                 document.getElementById('cut-input').value = "";
