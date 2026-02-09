@@ -1,1 +1,19 @@
-{ "products": {} }
+{
+  "products": {
+    "URUN-214462-65183": {
+      "offcuts": [],
+      "name": "Saray halı",
+      "price": 2450,
+      "stock": 50,
+      "size": 6,
+      "unit": "M²",
+      "extraLabel": "Skt",
+      "extraValue": "20.13.2026"
+    }
+  },
+  "dailyStats": {
+    "date": "9.02.2026",
+    "ciro": 0,
+    "log": []
+  }
+}
