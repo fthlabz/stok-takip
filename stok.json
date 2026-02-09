@@ -7,6 +7,14 @@
       "size": "600 cm",
       "stock": 50,
       "offcuts": []
+    },
+    "URUN-214462-49400": {
+      "name": "Motif halı",
+      "price": 3.75,
+      "length": 600,
+      "size": "600 cm",
+      "stock": 0,
+      "offcuts": []
     }
   }
 }
