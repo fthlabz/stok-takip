@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stok Master v12.5 (Serbest Giriş)</title>
+    <title>Stok Master v13.0 (Gizli Kasa)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -32,15 +32,20 @@
         <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-sm text-center">
             <div class="mb-8">
                 <div class="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/50">
-                    <i class="fa-solid fa-user-tag text-4xl text-blue-400"></i>
+                    <i class="fa-solid fa-user-shield text-4xl text-blue-400"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-white">Personel Girişi</h2>
-                <p class="text-gray-400 text-xs mt-2">Devam etmek için isminizi girin.</p>
             </div>
             
-            <div class="mb-6 text-left">
+            <div class="mb-4 text-left">
                 <label class="input-label text-center">ADINIZ / RUMUZUNUZ</label>
-                <input type="text" id="staff-name-input" class="modern-input text-center text-lg font-bold h-14 border-blue-500/50 focus:border-blue-400" placeholder="Örn: Ahmet" autocomplete="off">
+                <input type="text" id="staff-name-input" class="modern-input text-center text-lg font-bold h-12 border-blue-500/50 focus:border-blue-400" placeholder="Örn: Ahmet" autocomplete="off">
+            </div>
+
+            <div class="mb-6 text-left">
+                <label class="input-label text-center text-yellow-500">YÖNETİCİ ŞİFRESİ (OPSİYONEL)</label>
+                <input type="tel" id="login-pin" maxlength="6" class="modern-input text-center text-lg font-bold h-12 border-gray-600 focus:border-yellow-500 tracking-widest" placeholder="******">
+                <p class="text-[10px] text-gray-500 text-center mt-1">*Sadece genel ciroyu görmek için.</p>
             </div>
 
             <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg transition-colors shadow-lg shadow-blue-900/40">SİSTEMİ AÇ</button>
@@ -118,8 +123,8 @@
                     <div class="text-[9px] text-gray-400 uppercase font-bold">BENİM CİROM</div>
                     <div id="my-ciro" class="text-green-400 font-bold text-sm">0₺</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-[9px] text-gray-400 uppercase font-bold">DÜKKAN TOPLAM</div>
+                <div class="text-center" id="shop-ciro-box">
+                    <div class="text-[9px] text-gray-400 uppercase font-bold" id="shop-ciro-label">DÜKKAN TOPLAM</div>
                     <div id="shop-ciro" class="text-yellow-500 font-bold text-sm">0₺</div>
                 </div>
             </div>
@@ -156,7 +161,7 @@
                 <button onclick="sendDailyReport()" class="w-full bg-green-700/40 text-green-400 border border-green-600 py-2 rounded-lg font-bold text-sm mb-4 flex items-center justify-center gap-2">
                     <i class="fa-brands fa-whatsapp"></i> GÜN SONU RAPORU GÖNDER
                 </button>
-                <div class="text-[10px] text-gray-500 uppercase font-bold mb-2">Canlı Satış Akışı (Anlık)</div>
+                <div class="text-[10px] text-gray-500 uppercase font-bold mb-2">Canlı Satış Akışı</div>
                 <div id="last-transactions" class="space-y-1 text-xs text-gray-400">Loading...</div>
             </div>
         </div>
@@ -235,6 +240,7 @@
     </div>
 
     <script>
+        const ADMIN_PIN = "545454"; // YÖNETİCİ ŞİFRESİ
         const token_part_1 = "ghp_"; 
         const token_part_2 = "9gT7hgXXkyWE01zwNzYOFY621lkSIv4HIyLr"; 
         const CONFIG = { USER: "fthlabz", REPO: "stok-takip", FILE: "stok.json", TOKEN: token_part_1 + token_part_2 };
@@ -246,11 +252,15 @@
         let fileSha = null;
         let isProcessing = false;
         let currentStaff = ""; 
+        let isAdmin = false;
 
         window.onload = async () => {
             const savedStaff = sessionStorage.getItem("currentStaff");
+            const savedAdmin = sessionStorage.getItem("isAdmin") === "true";
+            
             if(sessionStorage.getItem("auth") === "true" && savedStaff) {
                 currentStaff = savedStaff;
+                isAdmin = savedAdmin;
                 unlockApp();
             } else {
                 document.getElementById('staff-name-input').focus();
@@ -259,11 +269,22 @@
 
         function checkLogin() {
             const staff = document.getElementById('staff-name-input').value.trim();
+            const pin = document.getElementById('login-pin').value.trim();
+            
             if(!staff) return alert("Lütfen isminizi girin!");
             
-            // ŞİFRE KONTROLÜ KALDIRILDI
+            // YÖNETİCİ KONTROLÜ
+            if(pin === ADMIN_PIN) {
+                isAdmin = true;
+                showStatus("Yönetici Girişi Başarılı");
+            } else {
+                isAdmin = false;
+                if(pin !== "") alert("Şifre Hatalı! Personel olarak giriş yapılıyor.");
+            }
+
             currentStaff = staff;
             sessionStorage.setItem("currentStaff", staff);
+            sessionStorage.setItem("isAdmin", isAdmin);
             unlockApp();
         }
 
@@ -271,7 +292,7 @@
             sessionStorage.setItem("auth", "true");
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
-            document.getElementById('staff-name-disp').innerText = currentStaff;
+            document.getElementById('staff-name-disp').innerText = currentStaff + (isAdmin ? " (Yönetici)" : "");
             await syncFromCloud();
         }
 
@@ -314,10 +335,23 @@
 
         function updateDashboardStats() {
             if(db.dailyStats) {
-                document.getElementById('shop-ciro').innerText = formatMoney(db.dailyStats.ciro);
+                // 1. Dükkan Toplam Cirosu (Sadece Yönetici Görür)
+                if(isAdmin) {
+                    document.getElementById('shop-ciro').innerText = formatMoney(db.dailyStats.ciro);
+                    document.getElementById('shop-ciro-label').innerText = "DÜKKAN TOPLAM";
+                    document.getElementById('shop-ciro-box').classList.remove('opacity-50');
+                } else {
+                    document.getElementById('shop-ciro').innerText = "🔒 GİZLİ";
+                    document.getElementById('shop-ciro-label').innerText = "YETKİ YOK";
+                    document.getElementById('shop-ciro-box').classList.add('opacity-50');
+                }
+
+                // 2. Kişisel Ciro Hesabı (Herkes Görür)
                 let myTotal = 0;
                 db.dailyStats.log.forEach(item => { if(item.staff === currentStaff) myTotal += item.total; });
                 document.getElementById('my-ciro').innerText = formatMoney(myTotal);
+
+                // 3. Log Listesi
                 const logContainer = document.getElementById('last-transactions');
                 if(db.dailyStats.log.length === 0) {
                     logContainer.innerHTML = '<div class="text-center italic">Henüz işlem yok...</div>';
@@ -493,7 +527,8 @@
         function sendDailyReport() {
             if(!db.dailyStats || db.dailyStats.log.length === 0) return alert("Bugün hareket yok.");
             let msg = `📅 *GÜN SONU RAPORU* (${db.dailyStats.date})\n`;
-            msg += `💰 *TOPLAM CİRO:* ${formatMoney(db.dailyStats.ciro)}\n`;
+            // Yöneticiyse toplamı ekle
+            if(isAdmin) msg += `💰 *TOPLAM CİRO:* ${formatMoney(db.dailyStats.ciro)}\n`;
             msg += `------------------\n`;
             
             let staffTotals = {};
