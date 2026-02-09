@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stok Master v13.0 (Gizli Kasa)</title>
+    <title>Stok Master v14.0 (Tam Gizlilik)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -174,7 +174,6 @@
                     <button onclick="shareProductWhatsapp()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold"><i class="fa-brands fa-whatsapp fa-lg"></i></button>
                 </div>
             </div>
-            
             <div class="bg-gray-800 rounded-2xl p-5 shadow-xl border-l-4 border-yellow-500 relative mb-4 shrink-0">
                 <div class="flex justify-between items-start mb-2">
                     <div id="p-id-badge" class="text-[10px] text-gray-500 font-mono bg-black/50 px-2 py-1 rounded max-w-[200px] truncate">ID: ...</div>
@@ -199,7 +198,6 @@
                     <span id="p-size-disp" class="text-lg font-bold text-blue-400 uppercase">0 M2</span>
                 </div>
             </div>
-
             <div class="bg-gray-800 p-4 rounded-xl border border-gray-600 shadow-lg mb-4">
                 <div class="text-xs text-gray-400 font-bold uppercase mb-3 flex justify-between items-center border-b border-gray-700 pb-2">
                     <span><i class="fa-solid fa-scissors"></i> Parça Kes / Ayır</span>
@@ -210,14 +208,12 @@
                 </div>
                 <p class="text-[10px] text-gray-500 mt-2 text-right text-blue-300">*1 Stok Düşer, Kalan Depoya Eklenir.</p>
             </div>
-
             <div id="offcut-container" class="bg-gray-800 p-4 rounded-xl border border-gray-600 shadow-lg hidden mb-4">
                 <h3 class="text-xs text-gray-400 font-bold uppercase mb-3 border-b border-gray-600 pb-2 flex justify-between items-center">
                     <span><i class="fa-solid fa-layer-group text-blue-400"></i> ARTANLAR</span>
                 </h3>
                 <div id="offcut-list" class="space-y-2"></div>
             </div>
-
             <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-lg">
                 <label class="text-gray-400 text-xs uppercase font-bold ml-1 mb-2 block">Hızlı Satış (Adet):</label>
                 <div class="relative mb-4">
@@ -240,7 +236,7 @@
     </div>
 
     <script>
-        const ADMIN_PIN = "545454"; // YÖNETİCİ ŞİFRESİ
+        const ADMIN_PIN = "545454"; 
         const token_part_1 = "ghp_"; 
         const token_part_2 = "9gT7hgXXkyWE01zwNzYOFY621lkSIv4HIyLr"; 
         const CONFIG = { USER: "fthlabz", REPO: "stok-takip", FILE: "stok.json", TOKEN: token_part_1 + token_part_2 };
@@ -270,13 +266,11 @@
         function checkLogin() {
             const staff = document.getElementById('staff-name-input').value.trim();
             const pin = document.getElementById('login-pin').value.trim();
-            
             if(!staff) return alert("Lütfen isminizi girin!");
             
-            // YÖNETİCİ KONTROLÜ
             if(pin === ADMIN_PIN) {
                 isAdmin = true;
-                showStatus("Yönetici Girişi Başarılı");
+                showStatus("Yönetici Girişi");
             } else {
                 isAdmin = false;
                 if(pin !== "") alert("Şifre Hatalı! Personel olarak giriş yapılıyor.");
@@ -308,14 +302,9 @@
                 const data = await res.json();
                 fileSha = data.sha;
                 db = JSON.parse(decodeURIComponent(escape(window.atob(data.content))));
-                
                 if(!db.dailyStats) db.dailyStats = { date: "", ciro: 0, log: [] };
-
                 const today = new Date().toLocaleDateString('tr-TR');
-                if (db.dailyStats.date !== today) {
-                    db.dailyStats = { date: today, ciro: 0, log: [] };
-                }
-
+                if (db.dailyStats.date !== today) db.dailyStats = { date: today, ciro: 0, log: [] };
                 showStatus("Hazır 🟢", false);
                 updateDashboardStats();
             } catch (e) { showStatus("Bağlantı Yok 🔴", false); }
@@ -335,7 +324,7 @@
 
         function updateDashboardStats() {
             if(db.dailyStats) {
-                // 1. Dükkan Toplam Cirosu (Sadece Yönetici Görür)
+                // 1. Dükkan Toplam (Yönetici Görür)
                 if(isAdmin) {
                     document.getElementById('shop-ciro').innerText = formatMoney(db.dailyStats.ciro);
                     document.getElementById('shop-ciro-label').innerText = "DÜKKAN TOPLAM";
@@ -346,17 +335,28 @@
                     document.getElementById('shop-ciro-box').classList.add('opacity-50');
                 }
 
-                // 2. Kişisel Ciro Hesabı (Herkes Görür)
+                // 2. Kişisel Ciro
                 let myTotal = 0;
                 db.dailyStats.log.forEach(item => { if(item.staff === currentStaff) myTotal += item.total; });
                 document.getElementById('my-ciro').innerText = formatMoney(myTotal);
 
-                // 3. Log Listesi
+                // 3. Log Listesi (FİLTRELİ - GÜVENLİK KİLİDİ)
                 const logContainer = document.getElementById('last-transactions');
-                if(db.dailyStats.log.length === 0) {
-                    logContainer.innerHTML = '<div class="text-center italic">Henüz işlem yok...</div>';
+                
+                // --- İŞTE SİHİRLİ DOKUNUŞ BURADA ---
+                // Eğer yönetici değilse, sadece kendi satışlarını görür.
+                // Yöneticiyse hepsini görür.
+                let visibleLogs = [];
+                if(isAdmin) {
+                    visibleLogs = db.dailyStats.log;
                 } else {
-                    logContainer.innerHTML = db.dailyStats.log.slice(0, 10).map(l => {
+                    visibleLogs = db.dailyStats.log.filter(l => l.staff === currentStaff);
+                }
+
+                if(visibleLogs.length === 0) {
+                    logContainer.innerHTML = '<div class="text-center italic text-gray-600">Henüz satışınız yok...</div>';
+                } else {
+                    logContainer.innerHTML = visibleLogs.slice(0, 10).map(l => {
                         const isMe = l.staff === currentStaff;
                         const colorClass = isMe ? "text-green-400" : "text-gray-500";
                         return `<div class="flex justify-between border-b border-gray-700 pb-1 text-[10px]">
@@ -427,14 +427,11 @@
             const unit = document.getElementById('new-unit').value;
             const exLabel = document.getElementById('new-extra-label').value;
             const exValue = document.getElementById('new-extra-value').value;
-
             if(!name) return alert("Ürün adı giriniz.");
             if(!db.products[currentId]) db.products[currentId] = { offcuts: [] };
-            
             const p = db.products[currentId];
             p.name = name; p.price = price; p.stock = stock; p.size = size; p.unit = unit;
             p.extraLabel = exLabel; p.extraValue = exValue;
-
             closeCreateModal();
             showStatus(db.products[currentId].offcuts.length > 0 ? "Güncellendi" : "Kaydedildi");
             await saveToCloud();
@@ -447,22 +444,18 @@
             const p = db.products[currentId];
             let displayId = currentId;
             if(displayId.length > 20) { if(displayId.includes("id=")) displayId = displayId.split("id=")[1]; else if(displayId.includes("/")) displayId = displayId.split("/").pop(); }
-            
             document.getElementById('p-id-badge').innerText = "ID: " + displayId;
             document.getElementById('p-name').innerText = p.name;
             document.getElementById('p-price-disp').innerText = formatMoney(p.price || 0);
             document.getElementById('p-stock').innerText = p.stock;
-            
             const unit = p.unit || 'M²';
             document.getElementById('p-size-disp').innerText = (p.size||0) + " " + unit;
-
             const extraBox = document.getElementById('p-extra-info');
             if(p.extraLabel && p.extraValue) {
                 extraBox.classList.remove('hidden');
                 document.getElementById('p-extra-label').innerText = p.extraLabel;
                 document.getElementById('p-extra-value').innerText = p.extraValue;
             } else { extraBox.classList.add('hidden'); }
-
             const container = document.getElementById('offcut-container');
             const list = document.getElementById('offcut-list');
             list.innerHTML = "";
@@ -483,11 +476,9 @@
             const cutVal = parseFloat(document.getElementById('cut-input').value);
             const totalSize = parseFloat(p.size) || 0;
             const unit = p.unit || "Birim";
-
             if (!cutVal) return alert("Kesilecek miktarı girin!");
             if(p.stock <= 0) return alert("Stok yok!");
             if(cutVal >= totalSize) return alert("Ürün boyutundan fazla kesemezsiniz!");
-
             const remaining = parseFloat((totalSize - cutVal).toFixed(2));
             if(confirm(`✂️ KESİM ONAYI\n\nStoktan 1 ADET düşülecek.\nKesilen: ${cutVal} ${unit}\nDepoya Artan: ${remaining} ${unit}`)) {
                 p.stock--;
@@ -511,13 +502,10 @@
             document.getElementById('confirm-modal').classList.add('hidden');
             const val = parseFloat(document.getElementById('manual-qty').value);
             const p = db.products[currentId];
-            
             p.stock -= val;
             const totalSale = p.price * val;
-            
             db.dailyStats.ciro += totalSale;
             db.dailyStats.log.unshift({ name: p.name, qty: val, total: totalSale, staff: currentStaff });
-
             updateDashboardStats();
             document.getElementById('manual-qty').value = "";
             showProductPage(); 
@@ -527,8 +515,8 @@
         function sendDailyReport() {
             if(!db.dailyStats || db.dailyStats.log.length === 0) return alert("Bugün hareket yok.");
             let msg = `📅 *GÜN SONU RAPORU* (${db.dailyStats.date})\n`;
-            // Yöneticiyse toplamı ekle
             if(isAdmin) msg += `💰 *TOPLAM CİRO:* ${formatMoney(db.dailyStats.ciro)}\n`;
+            else msg += `💰 *BENİM CİROM:* ${document.getElementById('my-ciro').innerText}\n`;
             msg += `------------------\n`;
             
             let staffTotals = {};
@@ -537,12 +525,17 @@
                 staffTotals[l.staff] += l.total;
             });
             
-            for (let [person, total] of Object.entries(staffTotals)) {
-                msg += `👤 *${person}:* ${formatMoney(total)}\n`;
+            if(isAdmin) {
+                for (let [person, total] of Object.entries(staffTotals)) {
+                    msg += `👤 *${person}:* ${formatMoney(total)}\n`;
+                }
             }
 
-            msg += `------------------\n*Detaylar:*\n`;
-            db.dailyStats.log.slice(0, 15).forEach(l => {
+            msg += `------------------\n*Satış Detayı:*\n`;
+            // Personel sadece kendi satışlarını rapora döker, Patron hepsini.
+            const reportLogs = isAdmin ? db.dailyStats.log : db.dailyStats.log.filter(l => l.staff === currentStaff);
+            
+            reportLogs.slice(0, 15).forEach(l => {
                 msg += `🔹 ${l.staff}: ${l.name} (${l.qty} Ad) - ${formatMoney(l.total)}\n`;
             });
 
