@@ -29,6 +29,16 @@
       "unit": "M²",
       "extraLabel": "",
       "extraValue": ""
+    },
+    "URUN-536063-63553": {
+      "offcuts": [],
+      "name": "Zeytin",
+      "price": 4500,
+      "stock": 0,
+      "size": 18,
+      "unit": "KG",
+      "extraLabel": "Skt",
+      "extraValue": "446.66.77"
     }
   },
   "dailyStats": {
