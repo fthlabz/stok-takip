@@ -24,7 +24,7 @@
       "offcuts": [],
       "name": "Kent rang blue",
       "price": 100,
-      "stock": 50,
+      "stock": 45,
       "size": 0,
       "unit": "M²",
       "extraLabel": "",
@@ -33,7 +33,14 @@
   },
   "dailyStats": {
     "date": "10.02.2026",
-    "ciro": 0,
-    "log": []
+    "ciro": 500,
+    "log": [
+      {
+        "name": "Kent rang blue",
+        "qty": 5,
+        "total": 500,
+        "staff": "Frh"
+      }
+    ]
   }
 }
