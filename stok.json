@@ -31,10 +31,12 @@
       "extraValue": ""
     },
     "URUN-536063-63553": {
-      "offcuts": [],
+      "offcuts": [
+        10
+      ],
       "name": "Zeytin",
       "price": 4500,
-      "stock": 100,
+      "stock": 99,
       "size": 18,
       "unit": "KG",
       "extraLabel": "Skt",
