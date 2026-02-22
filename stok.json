@@ -6,7 +6,7 @@
       ],
       "name": "Saray halı",
       "price": 2450,
-      "stock": 49,
+      "stock": 40,
       "size": 6,
       "unit": "M²",
       "extraLabel": "Skt",
@@ -47,7 +47,20 @@
   },
   "dailyStats": {
     "date": "22.02.2026",
-    "ciro": 0,
-    "log": []
+    "ciro": 22050,
+    "log": [
+      {
+        "name": "Saray halı",
+        "qty": 4,
+        "total": 9800,
+        "staff": "Fth"
+      },
+      {
+        "name": "Saray halı",
+        "qty": 5,
+        "total": 12250,
+        "staff": "Fth"
+      }
+    ]
   }
 }
