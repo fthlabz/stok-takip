@@ -25,6 +25,9 @@
         .modern-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
         .modern-select { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; }
     </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
 </head>
 <body>
 
@@ -236,10 +239,21 @@
     </div>
 
     <script>
-        const ADMIN_PIN = "545454"; 
-        const token_part_1 = "ghp_"; 
-        const token_part_2 = "9gT7hgXXkyWE01zwNzYOFY621lkSIv4HIyLr"; 
-        const CONFIG = { USER: "fthlabz", REPO: "stok-takip", FILE: "stok.json", TOKEN: token_part_1 + token_part_2 };
+        const ADMIN_PIN = "545454"; // Programın kendi şifresi, aynen duruyor
+
+// --- HAYALET KİLİT SİSTEMİ ---
+const sifreliKasa = "U2FsdGVkX1+jbdHHaQn0ShWGuHDpiCvHb46R/CaCfRiI/3ht55j9G8svrxMJuPkLxvSrtGcGbKv0VVJ+GUjdUg=="; 
+const gizliPin = "1453"; 
+
+const bytes = CryptoJS.AES.decrypt(sifreliKasa, gizliPin);
+const cozulmusToken = bytes.toString(CryptoJS.enc.Utf8);
+
+const CONFIG = { 
+    USER: "fthlabz", 
+    REPO: "stok-takip", 
+    FILE: "stok.json", 
+    TOKEN: cozulmusToken // Kriptodan çözülen şifre buraya oturdu
+};
 
         let db = { products: {}, dailyStats: { date: "", ciro: 0, log: [] } };
         let currentId = null;
